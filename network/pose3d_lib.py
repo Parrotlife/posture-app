@@ -35,15 +35,14 @@ FACE_POSITIONS = {'nose': [0.0, 0.0, 0.0],
 
 NB_JOINTS = 21
 
-"""normalize the data so we have the center hip at the axes origins and ymax-ymin is 1 """
 def normalize_3d(data):
-    
+    """normalize 3d data so we have the center hip at the axes origins and ymax-ymin is 1 """
+
     #we find the shift to center around the hip
     shift = (data[:,joint_dict['right hip']] + data[:,joint_dict['left hip']]).reshape((3,1))/2
     
     #we find the ratio to scale down
     ratio = (np.max(data[1,:]-np.min(data[1,:])))
-    #ratio = find_limb_length(data, 'hip')/0.1739
     
     # we center and scale the joints
     data = (data[:,:]-shift)/ratio
@@ -51,7 +50,7 @@ def normalize_3d(data):
     return data
 
 def normalize_2d(data, shift=None):
-    
+    """normalize 2d data so we have the center hip at the axes origins and ymax-ymin is 1 """
     
     #we find the shift to center around the hip
     if shift is None:
@@ -59,38 +58,34 @@ def normalize_2d(data, shift=None):
     
     #we find the ratio to scale down
     ratio = (np.max(data[1,:]-np.min(data[1,:])))
-    #ratio = find_limb_length(data, 'hip')/0.1739
     
     # we center and scale the joints
     data = (data[:,:]-shift)/ratio
 
-    return data#.transpose().flatten()
+    return data
 
-"""find the length of a limb from its name"""
 def find_limb_length(data, limb_name):
+    """find the length of a limb from its name"""
 
-    dim = 3
-
-    keypoints = data#.reshape((NB_JOINTS,dim)).transpose()
+    keypoints = data
 
     return np.linalg.norm(keypoints[:,limb_dict[limb_name][0]]-keypoints[:,limb_dict[limb_name][1]])
 
-""" Change the position of a joint in 3d"""
 def change_3d_joint_pos(data, joint_name, pos_3d):
+    """ Change the position of a joint in 3d"""
     keypoints = data
     keypoints[:, joint_dict[joint_name]] = pos_3d
 
     return keypoints#.transpose().flatten()
 
-""" get the position of a joint in 3d"""
 def get_3d_joint_pos(data, joint_name):
+    """ get the position of a joint in 3d"""
     keypoints = data
 
     return keypoints[:, joint_dict[joint_name]].reshape((3,1))
-
-""" Forward kinematics function"""  
+ 
 def move_member(data, member_name, a0, a1, a2, a3):
-    
+    """ Forward kinematics function""" 
     joints_data = data.copy()
     
     #### get all the useful sin and cos
@@ -167,32 +162,32 @@ def move_member(data, member_name, a0, a1, a2, a3):
     
     return joints_data
 
-"""Rotate the pose according to an angle and axis"""
 def rotate_pose(data, axis, angle):
+    """Rotate the pose according to an angle and axis"""
         
-        joints_data = data.copy()
-        
-        c = math.cos(angle)
-        s = math.sin(angle)
-        
-        r = {'x': np.array([[1, 0,  0],
-                            [0, c, -s],
-                            [0, s,  c]]),
-             'y': np.array([[ c, 0, s],
-                            [ 0, 1, 0],
-                            [-s, 0, c]]),
-             'z': np.array([[ c, -s, 0],
-                            [ s,  c, 0],
-                            [ 0,  0, 1]])
-            }
-        for joint in joint_names:
-            new_pos = np.dot(r[axis], get_3d_joint_pos(joints_data, joint))
-            joints_data = change_3d_joint_pos(joints_data, joint, new_pos.reshape((3)))
-        
-        return joints_data
+    joints_data = data.copy()
     
-"""Rotate the point according to an axis and an angle"""    
+    c = math.cos(angle)
+    s = math.sin(angle)
+    
+    r = {'x': np.array([[1, 0,  0],
+                        [0, c, -s],
+                        [0, s,  c]]),
+            'y': np.array([[ c, 0, s],
+                        [ 0, 1, 0],
+                        [-s, 0, c]]),
+            'z': np.array([[ c, -s, 0],
+                        [ s,  c, 0],
+                        [ 0,  0, 1]])
+        }
+    for joint in joint_names:
+        new_pos = np.dot(r[axis], get_3d_joint_pos(joints_data, joint))
+        joints_data = change_3d_joint_pos(joints_data, joint, new_pos.reshape((3)))
+    
+    return joints_data
+        
 def rotate_point(point, rot_axis, angle):
+    """Rotate the point according to an axis and an angle"""
     
     ux, uy, uz = rot_axis
     
@@ -205,55 +200,57 @@ def rotate_point(point, rot_axis, angle):
     
     return np.dot(rot_matrix, point)
     
-    
-
-"""Rotate the back or head according to 3 angles"""
 def rotate_backOrHead(data, member_name, a0, a1, a2):
+    """Rotate the back or head according to 3 angles"""
         
-        joints_data = data.copy()
-        
-        joints2move = {'head': ['nose','head','right eye','left eye','right ear','left ear'],
-                       'back': ['nose','head','right eye','left eye','right ear','left ear',
-                                'right shoulder','right elbow', 'right wrist', 'left shoulder',
-                                'left elbow', 'left wrist','center shoulder']}
-        origins = {'head': 'center shoulder',
-                   'back': 'center back'}
-        
-        x = np.array([1,0,0])
-        y = np.array([0,1,0])
-        z = np.array([0,0,1])
-        
-        
-        for joint in joints2move[member_name]:
-            pos = get_3d_joint_pos(joints_data, joint) - get_3d_joint_pos(joints_data, origins[member_name])
-            
-            pos = rotate_point(pos, x, a0) + get_3d_joint_pos(joints_data, origins[member_name])
-            
-            joints_data = change_3d_joint_pos(joints_data, joint, pos.reshape((3)))
-        
-        y = rotate_point(y, x, a0)
-        z = rotate_point(z, x, a0)
-        
-        for joint in joints2move[member_name]:
-            pos = get_3d_joint_pos(joints_data, joint) - get_3d_joint_pos(joints_data, origins[member_name])
-            
-            pos = rotate_point(pos, y, a1) + get_3d_joint_pos(joints_data, origins[member_name])
-            
-            joints_data = change_3d_joint_pos(joints_data, joint, pos.reshape((3)))
-        
-        z = rotate_point(z, y, a1)
-        
-        for joint in joints2move[member_name]:
-            pos = get_3d_joint_pos(joints_data, joint) - get_3d_joint_pos(joints_data, origins[member_name])
-            
-            pos = rotate_point(pos, z, a2) + get_3d_joint_pos(joints_data, origins[member_name])
-            
-            joints_data = change_3d_joint_pos(joints_data, joint, pos.reshape((3)))
-            
-        return joints_data
+    joints_data = data.copy()
     
-"""Rotates a pose according to angles in a dictionary"""
+    joints2move = {'head': ['nose','head','right eye','left eye','right ear','left ear'],
+                    'back': ['nose','head','right eye','left eye','right ear','left ear',
+                            'right shoulder','right elbow', 'right wrist', 'left shoulder',
+                            'left elbow', 'left wrist','center shoulder']}
+    origins = {'head': 'center shoulder',
+                'back': 'center back'}
+    
+    x = np.array([1,0,0])
+    y = np.array([0,1,0])
+    z = np.array([0,0,1])
+    
+    #rotate around x axis with angle a0
+    for joint in joints2move[member_name]:
+        pos = get_3d_joint_pos(joints_data, joint) - get_3d_joint_pos(joints_data, origins[member_name])
+        
+        pos = rotate_point(pos, x, a0) + get_3d_joint_pos(joints_data, origins[member_name])
+        
+        joints_data = change_3d_joint_pos(joints_data, joint, pos.reshape((3)))
+    
+    #rotate the coordinate system
+    y = rotate_point(y, x, a0)
+    z = rotate_point(z, x, a0)
+
+    #rotate around y axis with angle a1
+    for joint in joints2move[member_name]:
+        pos = get_3d_joint_pos(joints_data, joint) - get_3d_joint_pos(joints_data, origins[member_name])
+        
+        pos = rotate_point(pos, y, a1) + get_3d_joint_pos(joints_data, origins[member_name])
+        
+        joints_data = change_3d_joint_pos(joints_data, joint, pos.reshape((3)))
+    
+    #rotate the coordinate system
+    z = rotate_point(z, y, a1)
+
+    #rotate around z axis with angle a2
+    for joint in joints2move[member_name]:
+        pos = get_3d_joint_pos(joints_data, joint) - get_3d_joint_pos(joints_data, origins[member_name])
+        
+        pos = rotate_point(pos, z, a2) + get_3d_joint_pos(joints_data, origins[member_name])
+        
+        joints_data = change_3d_joint_pos(joints_data, joint, pos.reshape((3)))
+        
+    return joints_data
+    
 def full_pose_rotation(data, angle_dic):
+    """Rotates a pose according to angles in a dictionary"""
     
     members = ['right arm', 'left arm', 'right leg', 'left leg']
     head_or_back = ['head','back']
@@ -271,16 +268,16 @@ def full_pose_rotation(data, angle_dic):
             final_pose = rotate_pose(final_pose, key, a[0])
     return final_pose
 
-"""Project a single point in space into the image"""
 def project_to_pixels(xyz, kk):
+    """Project a single point in space into the image"""
     xx, yy, zz = np.dot(kk, xyz)
     uu = int(xx / zz)
     vv = int(yy / zz)
 
     return uu, vv
 
-"""project 3d pose to 2d lens"""
 def project_pose_2cam(pose, kk, z_shift, joints2keep):
+    """project 3d pose to 2d lens"""
     
     pose_moved = pose.copy()
     pose_moved[2] += z_shift
@@ -298,8 +295,8 @@ def project_pose_2cam(pose, kk, z_shift, joints2keep):
 
     return projected_pose
 
-"""Filter joints according to a list of them"""
 def filter_joints(data, list_joints, value):
+    """Filter joints according to a list of them"""
     
     null_pos = np.array([value,value,value])
     
@@ -310,15 +307,15 @@ def filter_joints(data, list_joints, value):
         
     return joints_data
 
-""" Change the position of a joint in 2d"""
 def change_2d_joint_pos(data, joint_name, pos_2d):
+    """ Change the position of a joint in 2d"""
     pedestrian = data
     pedestrian[:, joint_dict[joint_name]] = pos_2d
         
     return pedestrian
 
 def filter_joints_2d(data, list_joints, value):
-    
+    """Filter joints according to a list of them"""
     null_pos = np.array([value,value])
     
     joints_data = data.copy()

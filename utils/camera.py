@@ -26,45 +26,6 @@ def pixel_to_camera(uv_tensor, kk, z_met):
 
     return xyz_met
 
-
-# def project_to_pixels(xyz, kk):
-#     """Project a single point in space into the image"""
-#     xx, yy, zz = np.dot(kk, xyz)
-#     uu = int(xx / zz)
-#     vv = int(yy / zz)
-
-#     return uu, vv
-
-
-# def project_3d(box_obj, kk):
-#     """
-#     Project a 3D bounding box into the image plane using the central corners
-#     """
-#     box_2d = []
-#     # Obtain the 3d points of the box
-#     xc, yc, zc = box_obj.center
-#     ww, _, hh, = box_obj.wlh
-
-#     # Points corresponding to a box at the z of the center
-#     x1 = xc - ww/2
-#     y1 = yc - hh/2  # Y axis directed below
-#     x2 = xc + ww/2
-#     y2 = yc + hh/2
-#     xyz1 = np.array([x1, y1, zc])
-#     xyz2 = np.array([x2, y2, zc])
-#     corners_3d = np.array([xyz1, xyz2])
-
-#     # Project them and convert into pixel coordinates
-#     for xyz in corners_3d:
-#         xx, yy, zz = np.dot(kk, xyz)
-#         uu = xx / zz
-#         vv = yy / zz
-#         box_2d.append(uu)
-#         box_2d.append(vv)
-
-#     return box_2d
-
-
 def get_keypoints(keypoints, mode):
     """
     Extract center, shoulder or hip points of a keypoint
@@ -103,59 +64,7 @@ def get_keypoints(keypoints, mode):
     elif mode == 'ankle':
         kps_out = kps_in[:, :, 15:17].mean(2)
 
-    return kps_out  # (m, 2)
-
-
-# def transform_kp(kps, tr_mode):
-#     """Apply different transformations to the keypoints based on the tr_mode"""
-
-#     assert tr_mode in ("None", "singularity", "upper", "lower", "horizontal", "vertical", "lateral",
-#                        'shoulder', 'knee', 'upside', 'falling', 'random')
-
-#     uu_c, vv_c = get_keypoints(kps, mode='center')
-
-#     if tr_mode == "None":
-#         return kps
-
-#     if tr_mode == "singularity":
-#         uus = [uu_c for uu in kps[0]]
-#         vvs = [vv_c for vv in kps[1]]
-
-#     elif tr_mode == "vertical":
-#         uus = [uu_c for uu in kps[0]]
-#         vvs = kps[1]
-
-#     elif tr_mode == 'horizontal':
-#         uus = kps[0]
-#         vvs = [vv_c for vv in kps[1]]
-
-#     elif tr_mode == 'shoulder':
-#         uus = kps[0]
-#         vvs = kps[1][:7] + [kps[1][6] for vv in kps[1][7:]]
-
-#     elif tr_mode == 'knee':
-#         uus = kps[0]
-#         vvs = [kps[1][14] for vv in kps[1][:13]] + kps[1][13:]
-
-#     elif tr_mode == 'up':
-#         uus = kps[0]
-#         vvs = [kp - 300 for kp in kps[1]]
-
-#     elif tr_mode == 'falling':
-#         uus = [kps[0][16] - kp + kps[1][16] for kp in kps[1]]
-#         vvs = [kps[1][16] - kp + kps[0][16] for kp in kps[0]]
-
-#     elif tr_mode == 'random':
-#         uu_min = min(kps[0])
-#         uu_max = max(kps[0])
-#         vv_min = min(kps[1])
-#         vv_max = max(kps[1])
-#         np.random.seed(6)
-#         uus = np.random.uniform(uu_min, uu_max, len(kps[0])).tolist()
-#         vvs = np.random.uniform(vv_min, vv_max, len(kps[1])).tolist()
-
-#     return [uus, vvs, kps[2], []]
-
+    return kps_out 
 
 def xyz_from_distance(distances, xy_centers):
     """

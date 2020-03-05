@@ -32,10 +32,8 @@ FACE_POSITIONS = {'nose': [0.0, 0.0, 0.119],
 
 NB_JOINTS = 21
 
-
-"""normalize the 2d data so we have the center hip at the axes origins and ymax-ymin is 1 """
 def normalize_2d(data):
-    
+    """normalize the 2d data so we have the center hip at the axes origins and ymax-ymin is 1 """    
     
     #we find the shift to center around the hip
     shift = (data[:,joint_dict['right hip']] + data[:,joint_dict['left hip']]).reshape((2,1))/2
@@ -48,19 +46,19 @@ def normalize_2d(data):
 
     return data
 
-"""find the length of a limb from its name"""
 def find_limb_length(data, limb_name):
+    """find the length of a limb from its name"""
     data = data.reshape((NB_JOINTS, 2)).transpose()
     return np.linalg.norm(data[:, limb_dict[limb_name][0]] - data[:, limb_dict[limb_name][1]])
 
-"""get the position of a joint in 2d"""
 def get_2d_joint_pos(data, joint_name):
+    """get the position of a joint in 2d"""
     pedestrian = data.reshape((NB_JOINTS, 2)).transpose()
     return pedestrian[:, joint_dict[joint_name]].reshape((2,1))
 
-"""convert the joints order of pifpaf to match the ones we use"""
 def convert_pifpaf(og_keypoints, kk):
-    #this is the joint equivalence sequence between pifpaf anf H3.6M
+    """convert the joints order of pifpaf to match the ones we use"""
+    #this is the joint equivalence sequence between pifpaf and H3.6M
     convert_seq = {0:0, 1:6, 2:8, 3:10, 4:5, 5:7, 6:9, 7:12, 8:14, 9:16, 10:11, 11:13, 12:15, 13:2, 14:1, 15:4, 16:3}
     
     #for each joint we apply the equivalence
@@ -72,6 +70,8 @@ def convert_pifpaf(og_keypoints, kk):
     keypoints = np.array(keypoints).flatten()
     nb_joints = int(len(keypoints)/2)
     keypoints = keypoints.reshape((nb_joints,2)).transpose()
+
+    #we add custom joints (hip, head, shoulder and back)
 
     r_hip = keypoints[:, joint_dict['right hip']]
     l_hip = keypoints[:, joint_dict['left hip']]
@@ -99,16 +99,16 @@ def convert_pifpaf(og_keypoints, kk):
 
     return(keypoints.transpose().flatten())
 
-""" Change the position of a joint in 2d"""
 def change_2d_joint_pos(data, joint_name, pos_2d):
+    """ Change the position of a joint in 2d"""
     pedestrian = data
     pedestrian[:, joint_dict[joint_name]] = pos_2d
         
     return pedestrian
 
-"""Filter joints according to a list of them"""
 def filter_joints_2d(data, list_joints, value):
-    
+    """Filter joints according to a list of them"""
+
     null_pos = np.array([value,value])
     
     joints_data = data.copy()
@@ -118,8 +118,8 @@ def filter_joints_2d(data, list_joints, value):
         
     return joints_data
 
-"""generate a standing model from the front and side view"""
 def generate_3D_model(props, face):
+    """generate a standing model from the front and side view"""
     
     reconstructed_pose = []
     reconstructed_pose.append(face['nose'])
@@ -170,8 +170,8 @@ def generate_3D_model(props, face):
     
     return reconstructed_pose.transpose().flatten()
 
-"""find proportions from pifpaf front view"""
 def get_front_prop(front_view):
+    """find proportions from pifpaf front view"""
     body_prop = BODY_PROPORTIONS
     face_pos = FACE_POSITIONS
     body_prop_names = ['neck', 'shoulder', 'biceps','forearm', 'back']

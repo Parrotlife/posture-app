@@ -2,6 +2,7 @@ from panda3d.core import *
 import math
 
 class Segment():
+    """Create a Segment of the body skeleton"""
     def __init__(self, nb_edges=4, pos=(0, 0, 0), length=15, ratio=0.2, size = 1, color=(0.8, 0.0, 0.3, 1.0)):
         self._EDGES = nb_edges
         self.pos = LVecBase3f(pos)
@@ -97,6 +98,7 @@ class Segment():
         return node_path
 
 def Create3DPoint(name = 'node', position = (0,0,0), color = (0.8, 0.0, 0.3, 1.0), size = 10, parentnode = None):
+    """Generate a 3D point in space"""
     array = GeomVertexArrayFormat()
     array.addColumn("vertex", 3, Geom.NTFloat32, Geom.CPoint)
     format = GeomVertexFormat()
