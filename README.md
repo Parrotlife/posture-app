@@ -96,6 +96,8 @@ You can also define another path to the trained model with ```--pose3d_model <mo
 
 ### Comparing with Kinect (optional)
 
+![](images/image_4.jpg)
+
 To compare with the kinect SDK, you need to clone the repo: into the root folder and install the 
 SDK by following the instructions in the repo.
 
@@ -112,6 +114,8 @@ to finally get both results side by side in the posture-app run the application 
 ```
 python -m posture-app.run --webcam
 ```
+
+
 ### Record the data
 
 To record the data, you have to type 2 consecutive keyboard command. You need to type "a" (for activate) then "r" 
