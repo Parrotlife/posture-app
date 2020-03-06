@@ -14,7 +14,6 @@ def cli():
     nets.cli(predict_parser)
     decoder.cli(predict_parser, force_complete_pose=True, instance_threshold=0.15)
     predict_parser.add_argument('--scale', default=0.2, type=float, help='change the scale of the image to preprocess')
-    #predict_parser.add_argument('--pose3d_model', help='path of 3Dpose model to load', default='data/models/pose3d-real-v0_3_9.pkl')
     predict_parser.add_argument('--pose3d_model', help='path of 3Dpose model to load', default='data/models/pose3d-v0_8.pkl')
     predict_parser.add_argument('--webcam', help='streaming', action='store_true')
 

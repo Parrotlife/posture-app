@@ -34,18 +34,20 @@ visuals/ - Contains all the Classes and functions for the visual interface.
     client.py - Defines the functions for connecting to the Kinect Socket.
     segment.py - Defines the Segment Class for creating the Skeleton segment geometric shape.
     pose3d_viz_arm.py - Create the Panda3d engine instance and calls all the required function to update the visuals.
+
+run.py - 
 ```
 ## Network Architecture
 
 Here you can find the neural network architecture used in my model.
 
-![](images/image_3.jpg)
+![](images/image_1.jpg)
 
 
 ## Train and Dataset Generation
 
 I train my model on a generated Dataset of 2D joint projections to 3D joint angles, the data generation and training
-are detailed in the repo: 
+are detailed in the [training repo](https://github.com/Parrotlife/pose3d-train)
 
 ## Requirements
 
@@ -119,11 +121,16 @@ Then you type the same command again to stop the recording and save your data.
 
 The data is saved in the results folder in the json format.
 
-To interact with the data format, check the notebook () in the data generation and training repo.
+To interact with the data format, check the notebook in the data generation and training repo.
 
 ## Results
 
-Here are the resulting error based on the 2 mini dataset I created:
+Here are the resulting error based on the 2 benchmarks I created:
 
-![](images/image_1.jpg)
 ![](images/image_2.jpg)
+
+The median absolute error in degrees for each joint angles for the evenly distributed benchmark.
+
+![](images/image_3.jpg)
+
+The median absolute error in degrees for each joint angles for the realistic scenario benchmark.

@@ -1,8 +1,3 @@
-
-"""
-Pose3d class. From 2D joints to 3D joints
-"""
-
 import logging
 from collections import defaultdict
 
@@ -17,7 +12,8 @@ import math
 
 
 class Pose3d:
-
+    """Pose3d class. From 2D joints to 3D joints"""
+    
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
